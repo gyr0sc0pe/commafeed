@@ -30,8 +30,6 @@ import com.commafeed.backend.model.FeedEntryContent_;
 import com.commafeed.backend.model.FeedEntryStatus;
 import com.commafeed.backend.model.FeedEntryStatus_;
 import com.commafeed.backend.model.FeedEntry_;
-import com.commafeed.backend.model.FeedFeedEntry;
-import com.commafeed.backend.model.FeedFeedEntry_;
 import com.commafeed.backend.model.FeedSubscription;
 import com.commafeed.backend.model.FeedSubscription_;
 import com.commafeed.backend.model.Feed_;
@@ -140,7 +138,7 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 		CriteriaQuery<Tuple> query = builder.createTupleQuery();
 		Root<FeedEntry> root = query.from(FeedEntry.class);
 
-		Join<FeedFeedEntry, Feed> feedJoin = root.join(FeedEntry_.feedRelationships).join(FeedFeedEntry_.feed);
+		Join<FeedEntry, Feed> feedJoin = root.join(FeedEntry_.feed);
 		Join<Feed, FeedSubscription> subJoin = feedJoin
 				.join(Feed_.subscriptions);
 		Join<FeedEntry, FeedEntryContent> contentJoin = root
@@ -232,7 +230,7 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 		CriteriaQuery<Tuple> query = builder.createTupleQuery();
 		Root<FeedEntry> root = query.from(FeedEntry.class);
 
-		Join<FeedFeedEntry, Feed> feedJoin = root.join(FeedEntry_.feedRelationships).join(FeedFeedEntry_.feed);
+		Join<FeedEntry, Feed> feedJoin = root.join(FeedEntry_.feed);
 		Join<Feed, FeedSubscription> subJoin = feedJoin
 				.join(Feed_.subscriptions);
 
@@ -318,7 +316,7 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 		CriteriaQuery<FeedEntry> query = builder.createQuery(FeedEntry.class);
 		Root<FeedEntry> root = query.from(FeedEntry.class);
 
-		Join<FeedFeedEntry, Feed> feedJoin = root.join(FeedEntry_.feedRelationships).join(FeedFeedEntry_.feed);
+		Join<FeedEntry, Feed> feedJoin = root.join(FeedEntry_.feed);
 		Join<Feed, FeedSubscription> subJoin = feedJoin
 				.join(Feed_.subscriptions);
 
@@ -389,7 +387,7 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 		CriteriaQuery<Tuple> query = builder.createTupleQuery();
 		Root<FeedEntry> root = query.from(FeedEntry.class);
 
-		Join<FeedFeedEntry, Feed> feedJoin = root.join(FeedEntry_.feedRelationships).join(FeedFeedEntry_.feed);
+		Join<FeedEntry, Feed> feedJoin = root.join(FeedEntry_.feed);
 		Join<Feed, FeedSubscription> subJoin = feedJoin
 				.join(Feed_.subscriptions);
 

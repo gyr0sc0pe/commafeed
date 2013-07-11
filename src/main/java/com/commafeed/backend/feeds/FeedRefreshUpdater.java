@@ -73,7 +73,8 @@ public class FeedRefreshUpdater {
 		ApplicationSettings settings = applicationSettingsService.get();
 		int threads = Math.max(settings.getDatabaseUpdateThreads(), 1);
 		log.info("Creating database pool with {} threads", threads);
-		pool = new FeedRefreshExecutor("FeedRefreshUpdater", threads, 500 * threads);
+		pool = new FeedRefreshExecutor("FeedRefreshUpdater", threads,
+				500 * threads);
 		locks = Striped.lazyWeakLock(threads * 100000);
 	}
 
@@ -113,7 +114,7 @@ public class FeedRefreshUpdater {
 							subscriptions = feedSubscriptionDAO
 									.findByFeed(feed);
 						}
-						ok &= updateEntry(feed, entry, subscriptions);
+						ok &= addEntry(feed, entry, subscriptions);
 						metricsBean.entryCacheMiss();
 					} else {
 						log.debug("cache hit for {}", entry.getUrl());
@@ -140,17 +141,17 @@ public class FeedRefreshUpdater {
 		}
 	}
 
-	private boolean updateEntry(final Feed feed, final FeedEntry entry,
+	private boolean addEntry(final Feed feed, final FeedEntry entry,
 			final List<FeedSubscription> subscriptions) {
 		boolean success = false;
 
-		String key = StringUtils.trimToEmpty(entry.getGuid() + entry.getUrl());
+		String key = StringUtils.trimToEmpty("" + feed.getId());
 		Lock lock = locks.get(key);
 		boolean locked = false;
 		try {
 			locked = lock.tryLock(1, TimeUnit.MINUTES);
 			if (locked) {
-				feedUpdateService.updateEntry(feed, entry, subscriptions);
+				feedUpdateService.addEntry(feed, entry, subscriptions);
 				success = true;
 			} else {
 				log.error("lock timeout for " + feed.getUrl() + " - " + key);

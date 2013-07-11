@@ -94,11 +94,11 @@ public class FeedParser {
 						FeedUtils.toAbsoluteUrl(item.getLink(), feed.getLink()),
 						2048));
 				entry.setUpdated(validateDate(getEntryUpdateDate(item), true));
-				entry.setAuthor(item.getAuthor());
 
 				FeedEntryContent content = new FeedEntryContent();
 				content.setContent(getContent(item));
 				content.setTitle(getTitle(item));
+				content.setAuthor(item.getAuthor());
 				SyndEnclosure enclosure = (SyndEnclosure) Iterables.getFirst(
 						item.getEnclosures(), null);
 				if (enclosure != null) {

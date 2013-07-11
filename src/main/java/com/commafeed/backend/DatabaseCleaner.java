@@ -45,19 +45,6 @@ public class DatabaseCleaner {
 		return total;
 	}
 
-	public long cleanEntriesWithoutFeeds() {
-
-		long total = 0;
-		int deleted = -1;
-		do {
-			deleted = feedEntryDAO.deleteWithoutFeeds(100);
-			total += deleted;
-			log.info("removed {} entries without feeds", total);
-		} while (deleted != 0);
-		log.info("cleanup done: {} entries without feeds deleted", total);
-		return total;
-	}
-
 	public long cleanEntriesOlderThan(long value, TimeUnit unit) {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, -1 * (int) unit.toMinutes(value));
@@ -83,7 +70,6 @@ public class DatabaseCleaner {
 				sub.setFeed(into);
 			}
 			feedSubscriptionDAO.saveOrUpdate(subs);
-			feedDAO.deleteRelationships(feed);
 			feedDAO.delete(feed);
 		}
 		feedDAO.saveOrUpdate(into);
