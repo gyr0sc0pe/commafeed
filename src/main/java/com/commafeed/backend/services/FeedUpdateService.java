@@ -6,6 +6,8 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import com.commafeed.backend.MetricsBean;
 import com.commafeed.backend.cache.CacheService;
 import com.commafeed.backend.dao.FeedEntryDAO;
@@ -51,6 +53,7 @@ public class FeedUpdateService {
 
 		FeedEntryContent content = feedEntryContentService.findOrCreate(
 				entry.getContent(), feed.getLink());
+		entry.setGuidHash(DigestUtils.sha1Hex(entry.getGuid()));
 		entry.setContent(content);
 		entry.setInserted(new Date());
 		entry.setFeed(feed);

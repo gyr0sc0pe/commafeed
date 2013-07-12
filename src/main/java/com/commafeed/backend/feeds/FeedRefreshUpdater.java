@@ -1,7 +1,9 @@
 package com.commafeed.backend.feeds;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -11,6 +13,7 @@ import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -145,23 +148,32 @@ public class FeedRefreshUpdater {
 			final List<FeedSubscription> subscriptions) {
 		boolean success = false;
 
-		String key = StringUtils.trimToEmpty("" + feed.getId());
-		Lock lock = locks.get(key);
-		boolean locked = false;
+		String key1 = StringUtils.trimToEmpty("" + feed.getId());
+		String key2 = DigestUtils.sha1Hex(entry.getContent().getContent());
+		Iterator<Lock> iterator = locks.bulkGet(Arrays.asList(key1, key2))
+				.iterator();
+		Lock lock1 = iterator.next();
+		Lock lock2 = iterator.next();
+		boolean locked1 = false;
+		boolean locked2 = false;
 		try {
-			locked = lock.tryLock(1, TimeUnit.MINUTES);
-			if (locked) {
+			locked1 = lock1.tryLock(1, TimeUnit.MINUTES);
+			locked2 = lock2.tryLock(1, TimeUnit.MINUTES);
+			if (locked1 && locked2) {
 				feedUpdateService.addEntry(feed, entry, subscriptions);
 				success = true;
 			} else {
-				log.error("lock timeout for " + feed.getUrl() + " - " + key);
+				log.error("lock timeout for " + feed.getUrl() + " - " + key1);
 			}
 		} catch (InterruptedException e) {
 			log.error("interrupted while waiting for lock for " + feed.getUrl()
 					+ " : " + e.getMessage(), e);
 		} finally {
-			if (locked) {
-				lock.unlock();
+			if (locked1) {
+				lock1.unlock();
+			}
+			if (locked2) {
+				lock2.unlock();
 			}
 		}
 		return success;
