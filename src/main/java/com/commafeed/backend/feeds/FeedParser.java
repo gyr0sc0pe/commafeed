@@ -5,7 +5,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdom.Element;
@@ -89,7 +88,6 @@ public class FeedParser {
 					continue;
 				}
 				entry.setGuid(FeedUtils.truncate(guid, 2048));
-				entry.setGuidHash(DigestUtils.sha1Hex(guid));
 				entry.setUrl(FeedUtils.truncate(
 						FeedUtils.toAbsoluteUrl(item.getLink(), feed.getLink()),
 						2048));
