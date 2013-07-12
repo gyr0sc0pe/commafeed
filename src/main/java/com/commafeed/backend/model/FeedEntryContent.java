@@ -26,8 +26,6 @@ public class FeedEntryContent extends AbstractModel {
 	@Column(length = 40)
 	private String contentHash;
 
-	private Long contentLength;
-
 	@Column(name = "author", length = 128)
 	private String author;
 
@@ -84,13 +82,4 @@ public class FeedEntryContent extends AbstractModel {
 	public void setContentHash(String contentHash) {
 		this.contentHash = contentHash;
 	}
-
-	public Long getContentLength() {
-		return contentLength;
-	}
-
-	public void setContentLength(Long contentLength) {
-		this.contentLength = contentLength;
-	}
-
 }

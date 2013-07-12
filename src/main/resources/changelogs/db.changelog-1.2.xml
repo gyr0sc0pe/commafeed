@@ -23,7 +23,6 @@
 		<addColumn tableName="FEEDENTRYCONTENTS">
 			<column name="author" type="VARCHAR(128)" />
 			<column name="contentHash" type="VARCHAR(40)" />
-			<column name="contentLength" type="BIGINT" />
 		</addColumn>
 		<createIndex tableName="FEEDENTRYCONTENTS" indexName="content_hash_index">
 			<column name="contentHash" />
