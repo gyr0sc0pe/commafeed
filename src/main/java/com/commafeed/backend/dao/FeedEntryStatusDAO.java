@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
@@ -50,29 +49,6 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 
 	@Inject
 	ApplicationSettingsService applicationSettingsService;
-
-	@SuppressWarnings("unchecked")
-	public FeedEntryStatus findById(User user, Long id) {
-
-		CriteriaQuery<FeedEntryStatus> query = builder.createQuery(getType());
-		Root<FeedEntryStatus> root = query.from(getType());
-
-		Join<FeedEntryStatus, FeedSubscription> join = (Join<FeedEntryStatus, FeedSubscription>) root
-				.fetch(FeedEntryStatus_.subscription);
-
-		Predicate p1 = builder.equal(root.get(FeedEntryStatus_.id), id);
-		Predicate p2 = builder.equal(join.get(FeedSubscription_.user), user);
-
-		query.where(p1, p2);
-
-		FeedEntryStatus status = null;
-		try {
-			status = em.createQuery(query).getSingleResult();
-		} catch (NoResultException e) {
-			status = null;
-		}
-		return status;
-	}
 
 	public FeedEntryStatus findByEntry(FeedEntry entry, FeedSubscription sub) {
 
