@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -44,7 +43,7 @@ public class FeedDAO extends GenericDAO<Feed> {
 
 		Predicate hasSubscriptions = builder.isNotEmpty(root
 				.get(Feed_.subscriptions));
-
+		
 		Predicate neverUpdated = builder.isNull(root.get(Feed_.lastUpdated));
 		Predicate updatedBeforeThreshold = builder.lessThan(
 				root.get(Feed_.lastUpdated), threshold);
@@ -109,13 +108,6 @@ public class FeedDAO extends GenericDAO<Feed> {
 		return findByField(Feed_.pushTopicHash, DigestUtils.sha1Hex(topic));
 	}
 
-	public void deleteRelationships(Feed feed) {
-		Query relationshipDeleteQuery = em
-				.createNamedQuery("Feed.deleteEntryRelationships");
-		relationshipDeleteQuery.setParameter("feedId", feed.getId());
-		relationshipDeleteQuery.executeUpdate();
-	}
-
 	public int deleteWithoutSubscriptions(int max) {
 		CriteriaQuery<Feed> query = builder.createQuery(getType());
 		Root<Feed> root = query.from(getType());
@@ -128,11 +120,6 @@ public class FeedDAO extends GenericDAO<Feed> {
 
 		List<Feed> list = q.getResultList();
 		int deleted = list.size();
-
-		for (Feed feed : list) {
-			deleteRelationships(feed);
-			delete(feed);
-		}
 		return deleted;
 
 	}

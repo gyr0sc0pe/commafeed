@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+	<changeSet author="athou" id="change-entries-model">
+		<dropTable tableName="FEED_FEEDENTRIES" />
+		
+		<addColumn tableName="FEEDENTRIES">
+			<column name="feed_id" type="BIGINT">
+				<constraints nullable="false" />
+			</column>
+		</addColumn>
+		<addForeignKeyConstraint constraintName="fk_feed_id"
+			baseTableName="FEEDENTRIES" baseColumnNames="feed_id"
+			referencedTableName="FEEDS" referencedColumnNames="id" />
+		<createIndex tableName="FEEDENTRIES" indexName="feed_index">
+			<column name="feed_id" type="BIGINT" />
+		</createIndex>
+	</changeSet>
+
+	<changeSet author="athou" id="add-content-hashes">
+		<addColumn tableName="FEEDENTRYCONTENTS">
+			<column name="author" type="VARCHAR(128)" />
+			<column name="contentHash" type="VARCHAR(40)" />
+		</addColumn>
+		<createIndex tableName="FEEDENTRYCONTENTS" indexName="content_hash_index">
+			<column name="contentHash" />
+		</createIndex>
+	</changeSet>
+	
+	<changeSet author="athou" id="add-new-index">
+		<createIndex tableName="FEEDENTRYSTATUSES" indexName="user_entry_index">
+			<column name="user_id" />
+			<column name="entry_id" />
+		</createIndex>
+	</changeSet>
+	<changeSet author="athou" id="drop-old-index">
+		<dropIndex tableName="FEEDENTRYSTATUSES" indexName="sub_entry_index"/>
+	</changeSet>
+	
+	
+
+</databaseChangeLog>

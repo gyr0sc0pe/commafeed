@@ -23,6 +23,12 @@ public class FeedEntryContent extends AbstractModel {
 	@Column(length = Integer.MAX_VALUE)
 	private String content;
 
+	@Column(length = 40)
+	private String contentHash;
+
+	@Column(name = "author", length = 128)
+	private String author;
+
 	@Column(length = 2048)
 	private String enclosureUrl;
 
@@ -61,4 +67,19 @@ public class FeedEntryContent extends AbstractModel {
 		this.title = title;
 	}
 
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public String getContentHash() {
+		return contentHash;
+	}
+
+	public void setContentHash(String contentHash) {
+		this.contentHash = contentHash;
+	}
 }
