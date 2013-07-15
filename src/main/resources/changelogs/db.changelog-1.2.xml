@@ -7,7 +7,7 @@
 		<dropTable tableName="FEED_FEEDENTRIES" />
 		
 		<addColumn tableName="FEEDENTRIES">
-			<column name="feed_id" type="BIGINT">
+			<column name="feed_id" type="BIGINT" defaultValue="1">
 				<constraints nullable="false" />
 			</column>
 		</addColumn>

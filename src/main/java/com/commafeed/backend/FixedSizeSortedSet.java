@@ -24,16 +24,16 @@ public class FixedSizeSortedSet<E> extends TreeSet<E> {
 
 	@Override
 	public boolean add(E e) {
-		if (size() >= maxSize) {
-			E smallest = last();
-			int comparison = comparator.compare(e, smallest);
-			if (comparison > 0) {
-				remove(smallest);
+		if (size() == maxSize) {
+			E last = last();
+			int comparison = comparator.compare(e, last);
+			if (comparison < 0) {
+				remove(last);
 				return super.add(e);
+			} else {
+				return false;
 			}
-			return false;
-		}
-		else {
+		} else {
 			return super.add(e);
 		}
 	}

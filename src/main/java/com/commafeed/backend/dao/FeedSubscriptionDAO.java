@@ -17,7 +17,9 @@ import com.commafeed.backend.model.Feed_;
 import com.commafeed.backend.model.Models;
 import com.commafeed.backend.model.User;
 import com.commafeed.backend.model.User_;
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 @Stateless
 public class FeedSubscriptionDAO extends GenericDAO<FeedSubscription> {
@@ -101,8 +103,7 @@ public class FeedSubscriptionDAO extends GenericDAO<FeedSubscription> {
 				root.get(FeedSubscription_.user).get(User_.id), user.getId());
 		Predicate p2 = null;
 		if (category == null) {
-			p2 = builder.isNull(
-					root.get(FeedSubscription_.category));
+			p2 = builder.isNull(root.get(FeedSubscription_.category));
 		} else {
 			p2 = builder.equal(
 					root.get(FeedSubscription_.category).get(FeedCategory_.id),
@@ -116,6 +117,27 @@ public class FeedSubscriptionDAO extends GenericDAO<FeedSubscription> {
 				.getResultList();
 		initRelations(list);
 		return list;
+	}
+
+	public List<FeedSubscription> findByCategories(User user,
+			List<FeedCategory> categories) {
+
+		List<Long> categoryIds = Lists.transform(categories,
+				new Function<FeedCategory, Long>() {
+					@Override
+					public Long apply(FeedCategory input) {
+						return input.getId();
+					}
+				});
+
+		List<FeedSubscription> subscriptions = Lists.newArrayList();
+		for (FeedSubscription sub : findAll(user)) {
+			if (sub.getCategory() != null
+					&& categoryIds.contains(sub.getCategory().getId())) {
+				subscriptions.add(sub);
+			}
+		}
+		return subscriptions;
 	}
 
 	private void initRelations(List<FeedSubscription> list) {

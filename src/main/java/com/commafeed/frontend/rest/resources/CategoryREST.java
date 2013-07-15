@@ -107,12 +107,17 @@ public class CategoryREST extends AbstractResourceREST {
 		if (ALL.equals(id)) {
 			entries.setName("All");
 			List<FeedEntryStatus> list = null;
+
+			List<FeedSubscription> subscriptions = feedSubscriptionDAO
+					.findAll(getUser());
 			if (unreadOnly) {
-				list = feedEntryStatusDAO.findAllUnread(getUser(),
-						newerThanDate, offset, limit + 1, order, true);
+				list = feedEntryStatusDAO.findUnreadBySubscriptions(getUser(),
+						subscriptions, newerThanDate, offset, limit + 1, order,
+						true);
 			} else {
-				list = feedEntryStatusDAO.findAll(getUser(), newerThanDate,
-						offset, limit + 1, order, true);
+				list = feedEntryStatusDAO.findBySubscriptions(getUser(),
+						subscriptions, newerThanDate, offset, limit + 1, order,
+						true);
 			}
 			for (FeedEntryStatus status : list) {
 				entries.getEntries().add(
@@ -132,20 +137,23 @@ public class CategoryREST extends AbstractResourceREST {
 								.get().isImageProxyEnabled()));
 			}
 		} else {
-			FeedCategory feedCategory = feedCategoryDAO.findById(getUser(),
+			FeedCategory parent = feedCategoryDAO.findById(getUser(),
 					Long.valueOf(id));
-			if (feedCategory != null) {
-				List<FeedCategory> childrenCategories = feedCategoryDAO
-						.findAllChildrenCategories(getUser(), feedCategory);
+			if (parent != null) {
+				List<FeedCategory> categories = feedCategoryDAO
+						.findAllChildrenCategories(getUser(), parent);
+				List<FeedSubscription> subs = feedSubscriptionDAO
+						.findByCategories(getUser(), categories);
 				List<FeedEntryStatus> list = null;
 				if (unreadOnly) {
-					list = feedEntryStatusDAO.findUnreadByCategories(
-							childrenCategories, newerThanDate, offset,
-							limit + 1, order, true);
+					list = feedEntryStatusDAO.findUnreadBySubscriptions(
+							getUser(), subs, newerThanDate, offset, limit + 1,
+							order, true);
 				} else {
-					list = feedEntryStatusDAO.findByCategories(
-							childrenCategories, newerThanDate, offset,
-							limit + 1, order, true);
+					list = feedEntryStatusDAO
+							.findBySubscriptions(getUser(), subs,
+									newerThanDate, offset, limit + 1, order,
+									true);
 				}
 				for (FeedEntryStatus status : list) {
 					entries.getEntries().add(
@@ -154,7 +162,7 @@ public class CategoryREST extends AbstractResourceREST {
 									applicationSettingsService.get()
 											.isImageProxyEnabled()));
 				}
-				entries.setName(feedCategory.getName());
+				entries.setName(parent.getName());
 			}
 
 		}
@@ -223,16 +231,20 @@ public class CategoryREST extends AbstractResourceREST {
 				req.getOlderThan());
 
 		if (ALL.equals(req.getId())) {
-			feedEntryStatusDAO.markAllEntries(getUser(), olderThan);
+			List<FeedSubscription> subscriptions = feedSubscriptionDAO
+					.findAll(getUser());
+			feedEntryStatusDAO.markSubscriptionEntries(getUser(),
+					subscriptions, olderThan);
 		} else if (STARRED.equals(req.getId())) {
 			feedEntryStatusDAO.markStarredEntries(getUser(), olderThan);
 		} else {
+			FeedCategory parent = feedCategoryDAO.findById(getUser(),
+					Long.valueOf(req.getId()));
 			List<FeedCategory> categories = feedCategoryDAO
-					.findAllChildrenCategories(
-							getUser(),
-							feedCategoryDAO.findById(getUser(),
-									Long.valueOf(req.getId())));
-			feedEntryStatusDAO.markCategoryEntries(getUser(), categories,
+					.findAllChildrenCategories(getUser(), parent);
+			List<FeedSubscription> subs = feedSubscriptionDAO.findByCategories(
+					getUser(), categories);
+			feedEntryStatusDAO.markSubscriptionEntries(getUser(), subs,
 					olderThan);
 		}
 		cache.invalidateUserData(getUser());
