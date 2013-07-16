@@ -1,9 +1,12 @@
 package com.commafeed.backend.model;
 
+import java.util.Set;
+
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Cache;
@@ -35,6 +38,9 @@ public class FeedEntryContent extends AbstractModel {
 	@Column(length = 255)
 	private String enclosureType;
 
+	@OneToMany(mappedBy = "content")
+	private Set<FeedEntry> entries;
+	
 	public String getContent() {
 		return content;
 	}

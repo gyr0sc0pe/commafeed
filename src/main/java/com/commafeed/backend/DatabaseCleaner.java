@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.commafeed.backend.dao.FeedDAO;
+import com.commafeed.backend.dao.FeedEntryContentDAO;
 import com.commafeed.backend.dao.FeedEntryDAO;
 import com.commafeed.backend.dao.FeedSubscriptionDAO;
 import com.commafeed.backend.model.Feed;
@@ -27,6 +28,9 @@ public class DatabaseCleaner {
 	FeedEntryDAO feedEntryDAO;
 
 	@Inject
+	FeedEntryContentDAO feedEntryContentDAO;
+
+	@Inject
 	FeedSubscriptionDAO feedSubscriptionDAO;
 
 	@Inject
@@ -38,6 +42,19 @@ public class DatabaseCleaner {
 		int deleted = -1;
 		do {
 			deleted = feedDAO.deleteWithoutSubscriptions(10);
+			total += deleted;
+			log.info("removed {} feeds without subscriptions", total);
+		} while (deleted != 0);
+		log.info("cleanup done: {} feeds without subscriptions deleted", total);
+		return total;
+	}
+
+	public long cleanContentsWithoutEntries() {
+
+		long total = 0;
+		int deleted = -1;
+		do {
+			deleted = feedEntryContentDAO.deleteWithoutEntries(10);
 			total += deleted;
 			log.info("removed {} feeds without subscriptions", total);
 		} while (deleted != 0);
