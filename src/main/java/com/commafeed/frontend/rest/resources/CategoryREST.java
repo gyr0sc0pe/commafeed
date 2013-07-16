@@ -116,8 +116,8 @@ public class CategoryREST extends AbstractResourceREST {
 						true);
 			} else {
 				list = feedEntryStatusDAO.findBySubscriptions(getUser(),
-						subscriptions, newerThanDate, offset, limit + 1, order,
-						true);
+						subscriptions, null, newerThanDate, offset, limit + 1,
+						order, true);
 			}
 			for (FeedEntryStatus status : list) {
 				entries.getEntries().add(
@@ -150,10 +150,9 @@ public class CategoryREST extends AbstractResourceREST {
 							getUser(), subs, newerThanDate, offset, limit + 1,
 							order, true);
 				} else {
-					list = feedEntryStatusDAO
-							.findBySubscriptions(getUser(), subs,
-									newerThanDate, offset, limit + 1, order,
-									true);
+					list = feedEntryStatusDAO.findBySubscriptions(getUser(),
+							subs, null, newerThanDate, offset, limit + 1,
+							order, true);
 				}
 				for (FeedEntryStatus status : list) {
 					entries.getEntries().add(

@@ -14,8 +14,9 @@
 		<addForeignKeyConstraint constraintName="fk_feed_id"
 			baseTableName="FEEDENTRIES" baseColumnNames="feed_id"
 			referencedTableName="FEEDS" referencedColumnNames="id" />
-		<createIndex tableName="FEEDENTRIES" indexName="feed_index">
-			<column name="feed_id" type="BIGINT" />
+		<createIndex tableName="FEEDENTRIES" indexName="feed_updated_index">
+			<column name="feed_id" />
+			<column name="updated" />
 		</createIndex>
 	</changeSet>
 

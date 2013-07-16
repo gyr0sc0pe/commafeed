@@ -92,68 +92,6 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 		return status;
 	}
 
-	public List<FeedEntryStatus> findByKeywords(User user,
-			List<FeedSubscription> subscriptions, String keywords, int offset,
-			int limit, ReadingOrder order) {
-
-		String joinedKeywords = StringUtils.join(
-				keywords.toLowerCase().split(" "), "%");
-		joinedKeywords = "%" + joinedKeywords + "%";
-
-		int capacity = offset + limit;
-		Comparator<FeedEntry> comparator = order == ReadingOrder.desc ? ENTRY_COMPARATOR_DESC
-				: ENTRY_COMPARATOR_ASC;
-		FixedSizeSortedSet<FeedEntry> set = new FixedSizeSortedSet<FeedEntry>(
-				capacity < 0 ? Integer.MAX_VALUE : capacity, comparator);
-		for (FeedSubscription sub : subscriptions) {
-			CriteriaQuery<FeedEntry> query = builder
-					.createQuery(FeedEntry.class);
-			Root<FeedEntry> root = query.from(FeedEntry.class);
-			Join<FeedEntry, FeedEntryContent> contentJoin = root
-					.join(FeedEntry_.content);
-
-			List<Predicate> predicates = Lists.newArrayList();
-			predicates.add(builder.equal(root.get(FeedEntry_.feed),
-					sub.getFeed()));
-
-			Predicate content = builder.like(
-					builder.lower(contentJoin.get(FeedEntryContent_.content)),
-					joinedKeywords);
-			Predicate title = builder.like(
-					builder.lower(contentJoin.get(FeedEntryContent_.title)),
-					joinedKeywords);
-			predicates.add(builder.or(content, title));
-
-			query.where(predicates.toArray(new Predicate[0]));
-			orderEntriesBy(query, root, order);
-			TypedQuery<FeedEntry> q = em.createQuery(query);
-			limit(q, 0, capacity);
-			setTimeout(q);
-
-			List<FeedEntry> list = q.getResultList();
-			for (FeedEntry entry : list) {
-				entry.setSubscription(sub);
-			}
-			set.addAll(list);
-		}
-
-		List<FeedEntry> entries = set.asList();
-		int size = entries.size();
-		if (size < offset) {
-			return Lists.newArrayList();
-		}
-
-		entries = entries.subList(offset, size);
-
-		List<FeedEntryStatus> results = Lists.newArrayList();
-		for (FeedEntry entry : entries) {
-			FeedSubscription subscription = entry.getSubscription();
-			results.add(getStatus(subscription, entry));
-		}
-
-		return lazyLoadContent(true, results);
-	}
-
 	public List<FeedEntryStatus> findStarred(User user, Date newerThan,
 			int offset, int limit, ReadingOrder order, boolean includeContent) {
 
@@ -180,8 +118,9 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 	}
 
 	public List<FeedEntryStatus> findBySubscriptions(User user,
-			List<FeedSubscription> subscriptions, Date newerThan, int offset,
-			int limit, ReadingOrder order, boolean includeContent) {
+			List<FeedSubscription> subscriptions, String keywords,
+			Date newerThan, int offset, int limit, ReadingOrder order,
+			boolean includeContent) {
 
 		int capacity = offset + limit;
 		Comparator<FeedEntry> comparator = order == ReadingOrder.desc ? ENTRY_COMPARATOR_DESC
@@ -200,6 +139,35 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 			if (newerThan != null) {
 				predicates.add(builder.greaterThanOrEqualTo(
 						root.get(FeedEntry_.inserted), newerThan));
+			}
+
+			if (keywords != null) {
+				Join<FeedEntry, FeedEntryContent> contentJoin = root
+						.join(FeedEntry_.content);
+
+				String joinedKeywords = StringUtils.join(keywords.toLowerCase()
+						.split(" "), "%");
+				joinedKeywords = "%" + joinedKeywords + "%";
+
+				Predicate content = builder.like(builder.lower(contentJoin
+						.get(FeedEntryContent_.content)), joinedKeywords);
+				Predicate title = builder
+						.like(builder.lower(contentJoin
+								.get(FeedEntryContent_.title)), joinedKeywords);
+				predicates.add(builder.or(content, title));
+			}
+			
+			if (order != null && !set.isEmpty()) {
+				Predicate filter = null;
+				FeedEntry last = set.last();
+				if (order == ReadingOrder.desc) {
+					filter = builder.greaterThan(root.get(FeedEntry_.updated),
+							last.getUpdated());
+				} else {
+					filter = builder.lessThan(root.get(FeedEntry_.updated),
+							last.getUpdated());
+				}
+				predicates.add(filter);
 			}
 			query.where(predicates.toArray(new Predicate[0]));
 			orderEntriesBy(query, root, order);
@@ -256,6 +224,20 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 						root.get(FeedEntryStatus_.entryInserted), newerThan));
 			}
 
+			if (order != null && !set.isEmpty()) {
+				Predicate filter = null;
+				FeedEntryStatus last = set.last();
+				if (order == ReadingOrder.desc) {
+					filter = builder.greaterThan(
+							root.get(FeedEntryStatus_.entryUpdated),
+							last.getEntryUpdated());
+				} else {
+					filter = builder.lessThan(
+							root.get(FeedEntryStatus_.entryUpdated),
+							last.getEntryUpdated());
+				}
+				predicates.add(filter);
+			}
 			query.where(predicates.toArray(new Predicate[0]));
 			orderStatusesBy(query, root, order);
 

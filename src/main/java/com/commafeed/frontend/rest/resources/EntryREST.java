@@ -108,8 +108,8 @@ public class EntryREST extends AbstractResourceREST {
 		List<Entry> list = Lists.newArrayList();
 		List<FeedSubscription> subs = feedSubscriptionDAO.findAll(getUser());
 		List<FeedEntryStatus> entriesStatus = feedEntryStatusDAO
-				.findByKeywords(getUser(), subs, keywords, offset, limit,
-						ReadingOrder.desc);
+				.findBySubscriptions(getUser(), subs, keywords, null, offset,
+						limit, ReadingOrder.desc, true);
 		for (FeedEntryStatus status : entriesStatus) {
 			list.add(Entry.build(status, applicationSettingsService.get()
 					.getPublicUrl(), applicationSettingsService.get()

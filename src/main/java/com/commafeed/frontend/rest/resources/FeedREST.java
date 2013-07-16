@@ -159,8 +159,8 @@ public class FeedREST extends AbstractResourceREST {
 						limit + 1, order, true);
 			} else {
 				list = feedEntryStatusDAO.findBySubscriptions(getUser(),
-						Arrays.asList(subscription), newerThanDate, offset,
-						limit + 1, order, true);
+						Arrays.asList(subscription), null, newerThanDate,
+						offset, limit + 1, order, true);
 			}
 
 			for (FeedEntryStatus status : list) {

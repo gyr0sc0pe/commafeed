@@ -33,7 +33,7 @@ public class FeedEntryService {
 		FeedEntryStatus status = feedEntryStatusDAO.getStatus(sub, entry);
 
 		if (read) {
-			if (status.getId() == null) {
+			if (status.getId() != null) {
 				if (status.isStarred()) {
 					status.setRead(true);
 					feedEntryStatusDAO.saveOrUpdate(status);

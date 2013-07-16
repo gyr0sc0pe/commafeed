@@ -57,7 +57,7 @@ public class NextUnreadRedirectPage extends WebPage {
 			List<FeedSubscription> subscriptions = feedSubscriptionDAO
 					.findAll(user);
 			statuses = feedEntryStatusDAO.findBySubscriptions(user,
-					subscriptions, null, 0, 1, order, true);
+					subscriptions, null, null, 0, 1, order, true);
 		} else {
 			FeedCategory parent = feedCategoryDAO.findById(user,
 					Long.valueOf(categoryId));
