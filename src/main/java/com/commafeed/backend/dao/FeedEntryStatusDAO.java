@@ -188,7 +188,7 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 			return Lists.newArrayList();
 		}
 
-		entries = entries.subList(offset, size);
+		entries = entries.subList(Math.max(offset, 0), size);
 
 		List<FeedEntryStatus> results = Lists.newArrayList();
 		for (FeedEntry entry : entries) {
@@ -255,7 +255,7 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 			return Lists.newArrayList();
 		}
 
-		entries = entries.subList(offset, size);
+		entries = entries.subList(Math.max(offset, 0), size);
 		return lazyLoadContent(includeContent, entries);
 	}
 
