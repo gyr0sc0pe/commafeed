@@ -41,14 +41,28 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 	protected static Logger log = LoggerFactory
 			.getLogger(FeedEntryStatusDAO.class);
 
-	private static final Comparator<FeedEntry> ENTRY_COMPARATOR = new Comparator<FeedEntry>() {
+	private static final Comparator<FeedEntry> ENTRY_COMPARATOR_DESC = new Comparator<FeedEntry>() {
 		@Override
 		public int compare(FeedEntry o1, FeedEntry o2) {
 			return o2.getUpdated().compareTo(o1.getUpdated());
 		};
 	};
 
-	private static final Comparator<FeedEntryStatus> STATUS_COMPARATOR = new Comparator<FeedEntryStatus>() {
+	private static final Comparator<FeedEntry> ENTRY_COMPARATOR_ASC = new Comparator<FeedEntry>() {
+		@Override
+		public int compare(FeedEntry o1, FeedEntry o2) {
+			return o1.getUpdated().compareTo(o2.getUpdated());
+		};
+	};
+
+	private static final Comparator<FeedEntryStatus> STATUS_COMPARATOR_DESC = new Comparator<FeedEntryStatus>() {
+		@Override
+		public int compare(FeedEntryStatus o1, FeedEntryStatus o2) {
+			return o2.getEntryUpdated().compareTo(o1.getEntryUpdated());
+		};
+	};
+
+	private static final Comparator<FeedEntryStatus> STATUS_COMPARATOR_ASC = new Comparator<FeedEntryStatus>() {
 		@Override
 		public int compare(FeedEntryStatus o1, FeedEntryStatus o2) {
 			return o2.getEntryUpdated().compareTo(o1.getEntryUpdated());
@@ -87,8 +101,10 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 		joinedKeywords = "%" + joinedKeywords + "%";
 
 		int capacity = offset + limit;
+		Comparator<FeedEntry> comparator = order == ReadingOrder.desc ? ENTRY_COMPARATOR_DESC
+				: ENTRY_COMPARATOR_ASC;
 		FixedSizeSortedSet<FeedEntry> set = new FixedSizeSortedSet<FeedEntry>(
-				capacity < 0 ? Integer.MAX_VALUE : capacity, ENTRY_COMPARATOR);
+				capacity < 0 ? Integer.MAX_VALUE : capacity, comparator);
 		for (FeedSubscription sub : subscriptions) {
 			CriteriaQuery<FeedEntry> query = builder
 					.createQuery(FeedEntry.class);
@@ -168,8 +184,10 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 			int limit, ReadingOrder order, boolean includeContent) {
 
 		int capacity = offset + limit;
+		Comparator<FeedEntry> comparator = order == ReadingOrder.desc ? ENTRY_COMPARATOR_DESC
+				: ENTRY_COMPARATOR_ASC;
 		FixedSizeSortedSet<FeedEntry> set = new FixedSizeSortedSet<FeedEntry>(
-				capacity < 0 ? Integer.MAX_VALUE : capacity, ENTRY_COMPARATOR);
+				capacity < 0 ? Integer.MAX_VALUE : capacity, comparator);
 		for (FeedSubscription sub : subscriptions) {
 			CriteriaQuery<FeedEntry> query = builder
 					.createQuery(FeedEntry.class);
@@ -218,8 +236,10 @@ public class FeedEntryStatusDAO extends GenericDAO<FeedEntryStatus> {
 			int limit, ReadingOrder order, boolean includeContent) {
 
 		int capacity = offset + limit;
+		Comparator<FeedEntryStatus> comparator = order == ReadingOrder.desc ? STATUS_COMPARATOR_DESC
+				: STATUS_COMPARATOR_ASC;
 		FixedSizeSortedSet<FeedEntryStatus> set = new FixedSizeSortedSet<FeedEntryStatus>(
-				capacity < 0 ? Integer.MAX_VALUE : capacity, STATUS_COMPARATOR);
+				capacity < 0 ? Integer.MAX_VALUE : capacity, comparator);
 		for (FeedSubscription sub : subscriptions) {
 			CriteriaQuery<FeedEntryStatus> query = builder
 					.createQuery(getType());
